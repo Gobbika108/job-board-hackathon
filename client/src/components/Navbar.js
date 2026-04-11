@@ -20,7 +20,7 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="container navbar-content">
         <Link to="/" className="navbar-brand">
-          Job<span className="accent">Board</span>
+          Jump<span className="accent">start</span>
         </Link>
         
         <div className="navbar-links">
