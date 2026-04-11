@@ -1,6 +1,6 @@
 // Centralized API calls - keeps fetch logic in one place
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = '/api';
 
 // Get token from localStorage
 const getToken = () => localStorage.getItem('token');
@@ -52,7 +52,10 @@ export const login = (credentials) => request('/auth/login', {
 
 // JOBS
 export const getJobs = (filters = {}) => {
-  const params = new URLSearchParams(filters).toString();
+  const filteredFilters = Object.fromEntries(
+    Object.entries(filters).filter(([_, v]) => v !== '' && v !== undefined)
+  );
+  const params = new URLSearchParams(filteredFilters).toString();
   return request(`/jobs${params ? `?${params}` : ''}`);
 };
 

@@ -118,7 +118,7 @@ const CompanyDashboard = () => {
                 <StatusBadge status={app.status} />
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <a 
-                    href={`http://localhost:5000/uploads/${app.resumePath}`} 
+                    href={`/uploads/${app.resumePath}`} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="btn btn-secondary"
