@@ -21,8 +21,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/applications', applicationsRoutes);
 
-// MongoDB connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/jobboard';
+// MongoDB Atlas connection - set your ATLAS_URI in .env or use local MongoDB
+// Example Atlas URI: mongodb+srv://<username>:<password>@cluster0.xxx.mongodb.net/jobboard?retryWrites=true&w=majority
+const MONGO_URI = process.env.ATLAS_URI || process.env.MONGO_URI || 'mongodb://localhost:27017/jobboard';
 
 mongoose.connect(MONGO_URI)
   .then(() => console.log('Connected to MongoDB'))
