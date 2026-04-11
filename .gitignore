@@ -5,3 +5,4 @@ client/node_modules/
 .DS_Store
 serverout.txt
 serverr.txt
+server/uploads/*

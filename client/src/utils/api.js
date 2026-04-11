@@ -83,7 +83,7 @@ export const applyToJob = async (jobId, coverNote, resumeFile) => {
 
   const data = await parseResponse(response);
   if (!response.ok) {
-    throw new Error(data.message || 'Application failed');
+    throw new Error(data?.message || 'Application failed');
   }
   return data;
 };
