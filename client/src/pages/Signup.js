@@ -1,4 +1,4 @@
-// Signup page - name, email, password, role selection
+// Signup page with enhanced UI
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { signup } from '../utils/api';
@@ -32,9 +32,10 @@ const Signup = () => {
   };
 
   return (
-    <div className="container" style={{ maxWidth: '400px', marginTop: '3rem' }}>
-      <div className="card">
-        <h2 style={{ marginBottom: '1.5rem' }}>Create Account</h2>
+    <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
+      <div className="card auth-card">
+        <h2>Create Account</h2>
+        <p className="auth-subtitle">Join Student Job Board today</p>
         
         {error && <div className="alert alert-error">{error}</div>}
         
@@ -44,20 +45,24 @@ const Signup = () => {
             <input
               type="text"
               className="form-input"
+              placeholder="John Doe"
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
+              autoComplete="name"
             />
           </div>
           
           <div className="form-group">
-            <label className="form-label">Email</label>
+            <label className="form-label">Email Address</label>
             <input
               type="email"
               className="form-input"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              autoComplete="email"
             />
           </div>
           
@@ -66,9 +71,12 @@ const Signup = () => {
             <input
               type="password"
               className="form-input"
+              placeholder="Create a strong password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="new-password"
+              minLength={6}
             />
           </div>
           
@@ -79,18 +87,18 @@ const Signup = () => {
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
-              <option value="student">Student</option>
-              <option value="company">Company</option>
+              <option value="student">Student looking for opportunities</option>
+              <option value="company">Company hiring</option>
             </select>
           </div>
           
-          <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-            {loading ? 'Creating account...' : 'Sign Up'}
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
+            {loading ? <><span className="spinner"></span> Creating account...</> : 'Create Account'}
           </button>
         </form>
         
-        <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-          Already have an account? <Link to="/login">Login</Link>
+        <p style={{ marginTop: '1.5rem', textAlign: 'center', color: 'var(--muted)' }}>
+          Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>
     </div>

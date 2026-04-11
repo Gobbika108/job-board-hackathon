@@ -1,4 +1,4 @@
-// JobList - main jobs page with filters, search, pagination
+// JobList - main jobs page with enhanced UI
 import React, { useState, useEffect } from 'react';
 import { getJobs } from '../utils/api';
 import JobCard from '../components/JobCard';
@@ -16,6 +16,15 @@ const JobList = () => {
     loadJobs();
   }, [filters]);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (filters.search && filters.search.length > 0) {
+        loadJobs();
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [filters.search]);
+
   const loadJobs = async () => {
     setLoading(true);
     setError('');
@@ -30,7 +39,6 @@ const JobList = () => {
     }
   };
 
-  // Client-side search (filters by title or company name)
   const filteredJobs = jobs.filter(job => {
     if (!filters.search) return true;
     const searchLower = filters.search.toLowerCase();
@@ -39,7 +47,6 @@ const JobList = () => {
            companyName.includes(searchLower);
   });
 
-  // Pagination
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
   const paginatedJobs = filteredJobs.slice(
     (page - 1) * jobsPerPage,
@@ -47,44 +54,59 @@ const JobList = () => {
   );
 
   return (
-    <div className="container" style={{ padding: '2rem 20px' }}>
-      <div className="page-header">
-        <h1 className="page-title">Find Your Next Opportunity</h1>
+    <div>
+      {/* Hero Section */}
+      <div className="hero">
+        <div className="container">
+          <h1 className="hero-title">Find Your Dream Opportunity</h1>
+          <p className="hero-subtitle">
+            Browse hundreds of part-time, internship, and full-time opportunities from top companies. 
+            Apply with your resume and land your next big role.
+          </p>
+        </div>
       </div>
 
-      <FilterBar filters={filters} onChange={setFilters} />
+      <div className="container" style={{ padding: '2rem 20px' }}>
+        <FilterBar filters={filters} onChange={setFilters} />
 
-      {error && <div className="alert alert-error">{error}</div>}
+        {error && <div className="alert alert-error">{error}</div>}
 
-      {loading ? (
-        <p>Loading jobs...</p>
-      ) : filteredJobs.length === 0 ? (
-        <div className="empty-state">
-          <p>No jobs found matching your criteria.</p>
-        </div>
-      ) : (
-        <>
-          <div className="job-grid">
-            {paginatedJobs.map(job => (
-              <JobCard key={job._id} job={job} />
-            ))}
+        {loading ? (
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
           </div>
-
-          {totalPages > 1 && (
-            <div className="pagination">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
-                <button
-                  key={pageNum}
-                  className={pageNum === page ? 'active' : ''}
-                  onClick={() => setPage(pageNum)}
-                >
-                  {pageNum}
-                </button>
+        ) : filteredJobs.length === 0 ? (
+          <div className="empty-state card">
+            <p style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>No jobs found</p>
+            <p>Try adjusting your filters or search query.</p>
+          </div>
+        ) : (
+          <>
+            <p style={{ color: 'var(--muted)', marginBottom: '1rem' }}>
+              Showing {paginatedJobs.length} of {filteredJobs.length} opportunities
+            </p>
+            <div className="job-grid">
+              {paginatedJobs.map(job => (
+                <JobCard key={job._id} job={job} />
               ))}
             </div>
-          )}
-        </>
-      )}
+
+            {totalPages > 1 && (
+              <div className="pagination">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
+                  <button
+                    key={pageNum}
+                    className={pageNum === page ? 'active' : ''}
+                    onClick={() => setPage(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
