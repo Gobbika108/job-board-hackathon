@@ -53,13 +53,13 @@ const AppContent = () => {
       <Navbar />
       <Routes>
         <Route path="/" element={<JobList />} />
-        <Route path="/login" element={<PublicRoute /><Login />} />
-        <Route path="/signup" element={<PublicRoute /><Signup />} />
+        <Route path="/login" element={<><PublicRoute /><Login /></>} />
+        <Route path="/signup" element={<><PublicRoute /><Signup /></>} />
         <Route path="/jobs/:id" element={<JobDetail />} />
-        <Route path="/jobs/:id/apply" element={<ProtectedRoute allowedRole="student" /><Apply />} />
-        <Route path="/my-applications" element={<ProtectedRoute allowedRole="student" /><MyApplications />} />
-        <Route path="/dashboard" element={<ProtectedRoute allowedRole="company" /><CompanyDashboard />} />
-        <Route path="/post-job" element={<ProtectedRoute allowedRole="company" /><PostJob />} />
+        <Route path="/jobs/:id/apply" element={<><ProtectedRoute allowedRole="student" /><Apply /></>} />
+        <Route path="/my-applications" element={<><ProtectedRoute allowedRole="student" /><MyApplications /></>} />
+        <Route path="/dashboard" element={<><ProtectedRoute allowedRole="company" /><CompanyDashboard /></>} />
+        <Route path="/post-job" element={<><ProtectedRoute allowedRole="company" /><PostJob /></>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>

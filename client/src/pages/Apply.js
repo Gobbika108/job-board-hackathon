@@ -92,9 +92,9 @@ const Apply = () => {
               onChange={(e) => setCoverNote(e.target.value)}
               placeholder="Tell the company why you're a great fit..."
             />
-            <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
               {coverNote.length}/50 characters
-            </textarea>
+            </span>
           </div>
           
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
