@@ -6,7 +6,8 @@ const { authMiddleware } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// GET /api/jobs - list all jobs with filters
+
+// ✅ GET /api/jobs - list all jobs with filters
 router.get('/', async (req, res) => {
   try {
     const { category, location, type, search } = req.query;
@@ -15,6 +16,7 @@ router.get('/', async (req, res) => {
     if (category) query.category = category;
     if (location) query.location = location;
     if (type) query.type = type;
+
     if (search) {
       query.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -28,33 +30,48 @@ router.get('/', async (req, res) => {
 
     res.json(jobs);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.log(" GET JOBS ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
-// GET /api/jobs/:id - single job with company name
+
+// ✅ GET /api/jobs/:id - single job
 router.get('/:id', async (req, res) => {
   try {
-    const job = await Job.findById(req.params.id).populate('companyId', 'name');
+    const job = await Job.findById(req.params.id)
+      .populate('companyId', 'name');
+
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
+
     res.json(job);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.log(" GET SINGLE JOB ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
-// POST /api/jobs - create job (company only)
+
+// ✅ POST /api/jobs - create job (company only)
 router.post('/', authMiddleware, async (req, res) => {
   try {
+    console.log("👉 USER:", req.user); // DEBUG
+
     if (req.user.role !== 'company') {
       return res.status(403).json({ message: 'Only companies can post jobs' });
     }
 
     const {
-      title, description, requirements, location,
-      type, category, stipend, deadline
+      title,
+      description,
+      requirements,
+      location,
+      type,
+      category,
+      stipend,
+      deadline
     } = req.body;
 
     const job = new Job({
@@ -69,17 +86,22 @@ router.post('/', authMiddleware, async (req, res) => {
       deadline
     });
 
-    await job.save();
-    res.status(201).json(job);
+    const savedJob = await job.save();
+
+    res.status(201).json(savedJob);
+
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.log(" POST JOB ERROR:", err);  // 👈 IMPORTANT
+    res.status(500).json({ message: err.message });  // 👈 SHOW REAL ERROR
   }
 });
 
-// DELETE /api/jobs/:id - delete job (company only, own jobs)
+
+// ✅ DELETE /api/jobs/:id
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const job = await Job.findById(req.params.id);
+
     if (!job) {
       return res.status(404).json({ message: 'Job not found' });
     }
@@ -88,13 +110,14 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
-    // Delete all applications for this job
     await Application.deleteMany({ jobId: req.params.id });
     await Job.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'Job deleted' });
+
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.log(" DELETE JOB ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
