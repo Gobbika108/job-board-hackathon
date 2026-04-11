@@ -1,4 +1,4 @@
-// Navbar - role-based navigation with user info and logout
+// Navbar - premium modern navigation
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -12,37 +12,49 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const getInitials = (name) => {
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+  };
+
   return (
     <nav className="navbar">
       <div className="container navbar-content">
-        <Link to="/" className="navbar-brand">Student Job Board</Link>
+        <Link to="/" className="navbar-brand">
+          Job<span className="accent">Board</span>
+        </Link>
         
         <div className="navbar-links">
           {user ? (
             <>
-              <span className="navbar-user">
-                {user.name} ({user.role})
-              </span>
+              <Link to="/" className="navbar-link">Jobs</Link>
+              
+              <div className="navbar-user">
+                <div className="user-avatar">{getInitials(user.name)}</div>
+                <div className="user-info">
+                  <span className="user-name">{user.name}</span>
+                  <span className="user-role">{user.role}</span>
+                </div>
+              </div>
               
               {user.role === 'student' && (
-                <Link to="/my-applications">My Applications</Link>
+                <Link to="/my-applications" className="navbar-link">Applications</Link>
               )}
               
               {user.role === 'company' && (
                 <>
-                  <Link to="/dashboard">Dashboard</Link>
-                  <Link to="/post-job">Post Job</Link>
+                  <Link to="/dashboard" className="navbar-link">Dashboard</Link>
+                  <Link to="/post-job" className="navbar-link">Post Job</Link>
                 </>
               )}
               
-              <button className="btn btn-secondary" onClick={handleLogout}>
+              <button className="btn-logout" onClick={handleLogout}>
                 Logout
               </button>
             </>
           ) : (
             <>
-              <Link to="/login">Login</Link>
-              <Link to="/signup">Sign Up</Link>
+              <Link to="/login" className="navbar-link">Login</Link>
+              <Link to="/signup" className="btn btn-primary">Sign Up</Link>
             </>
           )}
         </div>
