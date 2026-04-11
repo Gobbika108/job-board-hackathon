@@ -70,9 +70,17 @@ export const applyToJob = async (jobId, coverNote, resumeFile) => {
     body: formData
   });
 
-  const data = await response.json();
+  const contentType = response.headers.get('content-type');
+  let data;
+  if (contentType && contentType.includes('application/json')) {
+    data = await response.json();
+  } else {
+    const text = await response.text();
+    throw new Error(text || 'Application failed');
+  }
+  
   if (!response.ok) {
-    throw new Error(data.message || 'Application failed');
+    throw new Error(data?.message || 'Application failed');
   }
   return data;
 };

@@ -13,6 +13,11 @@ router.post('/', authMiddleware, upload.single('resume'), async (req, res) => {
       return res.status(403).json({ message: 'Only students can apply' });
     }
 
+    // Check if file was uploaded
+    if (!req.file) {
+      return res.status(400).json({ message: 'Please upload a PDF resume' });
+    }
+
     const { jobId, coverNote } = req.body;
 
     // Check if job exists
