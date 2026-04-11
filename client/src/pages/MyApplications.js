@@ -51,17 +51,21 @@ const MyApplications = () => {
           <a href="/" style={{ marginTop: '1rem', display: 'inline-block' }}>Browse Jobs</a>
         </div>
       ) : (
-        <div className="application-list">
-          <div className="application-row header">
-            <div>Job Title</div>
-            <div>Company</div>
-            <div>Date Applied</div>
-            <div>Status</div>
-          </div>
-          {applications.map(app => (
-            <ApplicationRow key={app._id} application={app} />
-          ))}
-        </div>
+        <table className="application-table">
+          <thead>
+            <tr>
+              <th>Job Title</th>
+              <th>Company</th>
+              <th>Date Applied</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {applications.map(app => (
+              <ApplicationRow key={app._id} application={app} />
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

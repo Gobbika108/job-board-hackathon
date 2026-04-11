@@ -5,6 +5,17 @@ const API_URL = 'http://localhost:5000/api';
 // Get token from localStorage
 const getToken = () => localStorage.getItem('token');
 
+const parseResponse = async (response) => {
+  const contentType = response.headers.get('content-type') || '';
+
+  if (contentType.includes('application/json')) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  return { message: text || 'Unexpected server response' };
+};
+
 // Generic request wrapper
 const request = async (endpoint, options = {}) => {
   const token = getToken();
@@ -19,7 +30,7 @@ const request = async (endpoint, options = {}) => {
     headers
   });
 
-  const data = await response.json();
+  const data = await parseResponse(response);
 
   if (!response.ok) {
     throw new Error(data.message || 'Request failed');
@@ -70,7 +81,7 @@ export const applyToJob = async (jobId, coverNote, resumeFile) => {
     body: formData
   });
 
-  const data = await response.json();
+  const data = await parseResponse(response);
   if (!response.ok) {
     throw new Error(data.message || 'Application failed');
   }

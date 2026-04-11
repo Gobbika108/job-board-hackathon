@@ -3,6 +3,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const multer = require('multer');
 
 const authRoutes = require('./routes/auth');
 const jobsRoutes = require('./routes/jobs');
@@ -21,6 +22,18 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobsRoutes);
 app.use('/api/applications', applicationsRoutes);
+
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({ message: err.message || 'File upload failed' });
+  }
+
+  if (err) {
+    return res.status(400).json({ message: err.message || 'Request failed' });
+  }
+
+  next();
+});
 
 // MongoDB Atlas connection - set your ATLAS_URI in .env or use local MongoDB
 // Example Atlas URI: mongodb+srv://<username>:<password>@cluster0.xxx.mongodb.net/jobboard?retryWrites=true&w=majority

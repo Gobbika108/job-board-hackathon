@@ -16,12 +16,12 @@ const ApplicationRow = ({ application }) => {
   };
 
   return (
-    <div className="application-row">
-      <div>{title}</div>
-      <div>{companyName}</div>
-      <div>{formatDate(application.appliedAt)}</div>
-      <StatusBadge status={application.status} />
-    </div>
+    <tr>
+      <td>{title}</td>
+      <td>{companyName}</td>
+      <td>{formatDate(application.appliedAt)}</td>
+      <td><StatusBadge status={application.status} /></td>
+    </tr>
   );
 };
 
