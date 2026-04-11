@@ -11,22 +11,57 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     const { category, location, type, search } = req.query;
-    const query = {};
+    
+    const pipeline = [
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'companyId',
+          foreignField: '_id',
+          as: 'companyData'
+        }
+      },
+      {
+        $unwind: '$companyData'
+      }
+    ];
 
-    if (category) query.category = category;
-    if (location) query.location = location;
-    if (type) query.type = type;
+    // Build match stage
+    const matchStage = {};
+    if (category) matchStage.category = category;
+    if (location) matchStage.location = location;
+    if (type) matchStage.type = type;
 
     if (search) {
-      query.$or = [
+      matchStage.$or = [
         { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { description: { $regex: search, $options: 'i' } },
+        { 'companyData.name': { $regex: search, $options: 'i' } }
       ];
     }
 
-    const jobs = await Job.find(query)
-      .populate('companyId', 'name')
-      .sort({ createdAt: -1 });
+    pipeline.push({ $match: matchStage });
+    pipeline.push({ $sort: { createdAt: -1 } });
+    pipeline.push({
+      $project: {
+        _id: 1,
+        title: 1,
+        description: 1,
+        requirements: 1,
+        location: 1,
+        type: 1,
+        category: 1,
+        stipend: 1,
+        deadline: 1,
+        createdAt: 1,
+        companyId: {
+          _id: '$companyData._id',
+          name: '$companyData.name'
+        }
+      }
+    });
+
+    const jobs = await Job.aggregate(pipeline);
 
     res.json(jobs);
   } catch (err) {
