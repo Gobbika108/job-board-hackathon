@@ -1,6 +1,6 @@
 // Centralized API calls - keeps fetch logic in one place
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 export const UPLOADS_URL = API_URL.replace('/api', '') + '/uploads';
 
 // Get token from localStorage
@@ -49,6 +49,11 @@ export const signup = (userData) => request('/auth/signup', {
 export const login = (credentials) => request('/auth/login', {
   method: 'POST',
   body: JSON.stringify(credentials)
+});
+
+export const googleAuth = ({ credential, role }) => request('/auth/google', {
+  method: 'POST',
+  body: JSON.stringify({ credential, role })
 });
 
 // JOBS
