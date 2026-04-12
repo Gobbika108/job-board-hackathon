@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getJobs, getJobApplicants, updateApplicationStatus } from '../utils/api';
+import { getJobs, getJobApplicants, updateApplicationStatus, UPLOADS_URL } from '../utils/api';
 import StatusBadge from '../components/StatusBadge';
 
 const CompanyDashboard = () => {
@@ -11,20 +11,27 @@ const CompanyDashboard = () => {
   const [selectedJob, setSelectedJob] = useState(null);
   const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [applicantLoading, setApplicantLoading] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (user?.role === 'company') {
       loadCompanyJobs();
     }
-  }, []);
+  }, [user]);
 
   const loadCompanyJobs = async () => {
     try {
       const allJobs = await getJobs();
       // Filter to only company's own jobs
-      const companyJobs = allJobs.filter(job => job.companyId?._id === user.userId);
+      const companyJobs = allJobs.filter(job => String(job.companyId?._id) === String(user.userId));
       setJobs(companyJobs);
+
+      if (companyJobs.length > 0) {
+        const firstJobId = companyJobs[0]._id;
+        setSelectedJob(firstJobId);
+        await loadApplicants(firstJobId);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -34,11 +41,14 @@ const CompanyDashboard = () => {
 
   const loadApplicants = async (jobId) => {
     try {
+      setApplicantLoading(true);
       const data = await getJobApplicants(jobId);
       setApplicants(data);
       setSelectedJob(jobId);
     } catch (err) {
       setError(err.message);
+    } finally {
+      setApplicantLoading(false);
     }
   };
 
@@ -95,8 +105,17 @@ const CompanyDashboard = () => {
                     {job.location} · {job.type} · {job.category}
                   </div>
                 </div>
-                <div className={`badge badge-${new Date(job.deadline) < new Date() ? 'deadline' : job.location}`}>
-                  {new Date(job.deadline) < new Date() ? 'Expired' : job.location}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <div className={`badge badge-${new Date(job.deadline) < new Date() ? 'deadline' : job.location}`}>
+                    {new Date(job.deadline) < new Date() ? 'Expired' : job.location}
+                  </div>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={(e) => { e.stopPropagation(); loadApplicants(job._id); }}
+                  >
+                    View Applicants
+                  </button>
                 </div>
               </div>
             ))}
@@ -104,48 +123,56 @@ const CompanyDashboard = () => {
         </div>
       )}
 
-      {selectedJob && applicants.length > 0 && (
+      {selectedJob && (
         <div className="dashboard-section">
           <h3 style={{ marginBottom: '1rem' }}>Applicants</h3>
-          <div className="application-list">
-            {applicants.map(app => (
-              <div key={app._id} className="applicant-row">
-                <div>
-                  <div style={{ fontWeight: 600 }}>{app.studentId?.name}</div>
-                  <div style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>{app.studentId?.email}</div>
+          {applicantLoading ? (
+            <p>Loading applicants...</p>
+          ) : applicants.length > 0 ? (
+            <div className="application-list">
+              {applicants.map(app => (
+                <div key={app._id} className="applicant-row">
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{app.studentId?.name}</div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>{app.studentId?.email}</div>
+                    <div style={{ marginTop: '0.75rem', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
+                      <strong>Cover Note:</strong>
+                      <div style={{ marginTop: '0.3rem', padding: '0.75rem', borderRadius: '12px', background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' }}>
+                        {app.coverNote || 'No cover note provided.'}
+                      </div>
+                    </div>
+                  </div>
+                  <div>{new Date(app.appliedAt).toLocaleDateString()}</div>
+                  <StatusBadge status={app.status} />
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <a 
+                      href={`${UPLOADS_URL}/${app.resumePath}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="btn btn-secondary"
+                    >
+                      Resume
+                    </a>
+                    <select
+                      className="form-select"
+                      value={app.status}
+                      onChange={(e) => handleStatusChange(app._id, e.target.value)}
+                      style={{ width: 'auto' }}
+                    >
+                      <option value="applied">Applied</option>
+                      <option value="under review">Under Review</option>
+                      <option value="shortlisted">Shortlisted</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
                 </div>
-                <div>{new Date(app.appliedAt).toLocaleDateString()}</div>
-                <StatusBadge status={app.status} />
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <a 
-                    href={`/uploads/${app.resumePath}`} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary"
-                  >
-                    Resume
-                  </a>
-                  <select
-                    className="form-select"
-                    value={app.status}
-                    onChange={(e) => handleStatusChange(app._id, e.target.value)}
-                    style={{ width: 'auto' }}
-                  >
-                    <option value="applied">Applied</option>
-                    <option value="under review">Under Review</option>
-                    <option value="shortlisted">Shortlisted</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {selectedJob && applicants.length === 0 && (
-        <div className="empty-state">
-          <p>No applicants yet for this job.</p>
+              ))}
+            </div>
+          ) : (
+            <div className="empty-state">
+              <p>No applicants yet for this job.</p>
+            </div>
+          )}
         </div>
       )}
     </div>

@@ -61,7 +61,7 @@ const JobDetail = () => {
   };
 
   const showApplyButton = user?.role === 'student' && !isDeadlinePassed;
-  const showManageLink = user?.role === 'company' && user?.userId === job.companyId?._id;
+  const showManageLink = user?.role === 'company' && String(user?.userId) === String(job.companyId?._id);
 
   return (
     <div className="container" style={{ padding: '2rem 20px' }}>
@@ -87,7 +87,7 @@ const JobDetail = () => {
 
         <div className="job-detail-section">
           <h3>Stipend</h3>
-          <p>{job.stipend ? `$${job.stipend.toLocaleString()}` : 'Unpaid'}</p>
+          <p>{job.stipend ? `₹${job.stipend.toLocaleString()}` : 'Unpaid'}</p>
         </div>
 
         <div className="job-detail-section">

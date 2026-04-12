@@ -165,7 +165,7 @@ const PostJob = () => {
             </div>
             
             <div className="form-group">
-              <label className="form-label">Stipend ($)</label>
+              <label className="form-label">Stipend (₹)</label>
               <input
                 type="number"
                 name="stipend"

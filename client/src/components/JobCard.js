@@ -6,7 +6,7 @@ const JobCard = ({ job }) => {
   const isDeadlinePassed = new Date(job.deadline) < new Date();
   const companyName = job.companyId?.name || 'Company';
   const companyInitial = companyName.charAt(0).toUpperCase();
-  const stipendDisplay = job.stipend ? `$${job.stipend.toLocaleString()}` : 'Unpaid';
+  const stipendDisplay = job.stipend ? `₹${job.stipend.toLocaleString()}` : 'Unpaid';
   
   const daysLeft = Math.ceil((new Date(job.deadline) - new Date()) / (1000 * 60 * 60 * 24));
   const isUrgent = daysLeft > 0 && daysLeft <= 3;
