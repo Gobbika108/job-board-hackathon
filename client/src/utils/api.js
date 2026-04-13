@@ -65,6 +65,8 @@ export const getJobs = (filters = {}) => {
   return request(`/jobs${params ? `?${params}` : ''}`);
 };
 
+export const getMyCompanyJobs = () => request('/jobs/mine');
+
 export const getJob = (id) => request(`/jobs/${id}`);
 
 export const createJob = (jobData) => request('/jobs', {

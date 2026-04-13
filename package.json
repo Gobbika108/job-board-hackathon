@@ -2,9 +2,9 @@
   "name": "student-job-board",
   "version": "1.0.0",
   "scripts": {
-    "server": "node server/server.js",
-    "client": "cd client && npm start",
-    "install-all": "npm install && cd client && npm install"
+    "server": "npm --prefix server run start",
+    "client": "npm --prefix client run start",
+    "install-all": "npm install && npm --prefix server install && npm --prefix client install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

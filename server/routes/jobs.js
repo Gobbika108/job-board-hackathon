@@ -7,10 +7,10 @@ const { authMiddleware } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 
-// ✅ GET /api/jobs - list all jobs with filters
+// ✅ GET /api/jobs - list available jobs with filters
 router.get('/', async (req, res) => {
   try {
-    const { category, location, type, search } = req.query;
+    const { category, location, type, search, includeExpired } = req.query;
     
     const pipeline = [
       {
@@ -28,6 +28,9 @@ router.get('/', async (req, res) => {
 
     // Build match stage
     const matchStage = {};
+    if (includeExpired !== 'true') {
+      matchStage.deadline = { $gte: new Date() };
+    }
     if (category) matchStage.category = category;
     if (location) matchStage.location = location;
     if (type) matchStage.type = type;
@@ -66,6 +69,24 @@ router.get('/', async (req, res) => {
     res.json(jobs);
   } catch (err) {
     console.log(" GET JOBS ERROR:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ✅ GET /api/jobs/mine - list jobs posted by the logged-in company
+router.get('/mine', authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== 'company') {
+      return res.status(403).json({ message: 'Only companies can access their jobs' });
+    }
+
+    const jobs = await Job.find({ companyId: req.user.userId })
+      .populate('companyId', 'name')
+      .sort({ createdAt: -1 });
+
+    res.json(jobs);
+  } catch (err) {
+    console.log(' GET COMPANY JOBS ERROR:', err);
     res.status(500).json({ message: err.message });
   }
 });

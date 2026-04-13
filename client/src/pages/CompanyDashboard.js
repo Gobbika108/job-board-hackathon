@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getJobs, getJobApplicants, updateApplicationStatus, UPLOADS_URL } from '../utils/api';
+import { getMyCompanyJobs, getJobApplicants, updateApplicationStatus, UPLOADS_URL } from '../utils/api';
 import StatusBadge from '../components/StatusBadge';
 
 const CompanyDashboard = () => {
@@ -22,9 +22,7 @@ const CompanyDashboard = () => {
 
   const loadCompanyJobs = async () => {
     try {
-      const allJobs = await getJobs();
-      // Filter to only company's own jobs
-      const companyJobs = allJobs.filter(job => String(job.companyId?._id) === String(user.userId));
+      const companyJobs = await getMyCompanyJobs();
       setJobs(companyJobs);
 
       if (companyJobs.length > 0) {
