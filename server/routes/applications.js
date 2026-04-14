@@ -36,9 +36,6 @@ router.post('/', authMiddleware, upload.single('resume'), async (req, res) => {
       return res.status(400).json({ message: 'Please upload a PDF resume' });
     }
 
-    console.log('Cloudinary URL:', req.file.path);
-    console.log('Full file object:', JSON.stringify(req.file, null, 2));
-
     const { jobId, coverNote } = req.body;
 
     // Check if job exists
@@ -67,7 +64,6 @@ router.post('/', authMiddleware, upload.single('resume'), async (req, res) => {
     });
 
     await application.save();
-    console.log('Application saved successfully with resume URL:', application.resumePath);
     res.status(201).json(application);
   } catch (err) {
     console.error('Application error:', err);

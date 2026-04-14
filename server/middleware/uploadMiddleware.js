@@ -28,7 +28,8 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 }
+  // Keep under typical serverless body-size limits.
+  limits: { fileSize: 4 * 1024 * 1024 }
 });
 
 module.exports = upload;
