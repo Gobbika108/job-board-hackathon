@@ -1,6 +1,6 @@
 // Centralized API calls - keeps fetch logic in one place
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+export const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 export const UPLOADS_URL = API_URL.replace('/api', '') + '/uploads';
 
 // Get token from localStorage

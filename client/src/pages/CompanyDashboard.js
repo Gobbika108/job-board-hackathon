@@ -2,8 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getMyCompanyJobs, getJobApplicants, updateApplicationStatus, UPLOADS_URL } from '../utils/api';
+import { API_URL, getMyCompanyJobs, getJobApplicants, updateApplicationStatus } from '../utils/api';
 import StatusBadge from '../components/StatusBadge';
+
+const getResumeUrl = (resumePath) => {
+  if (!resumePath) return '#';
+  if (resumePath.startsWith('http')) return resumePath;
+  if (resumePath.startsWith('/api/')) return `${API_URL}${resumePath.replace('/api', '')}`;
+  return `${API_URL}/applications/resume/${resumePath}`;
+};
 
 const CompanyDashboard = () => {
   const { user } = useAuth();
@@ -144,7 +151,7 @@ const CompanyDashboard = () => {
                   <StatusBadge status={app.status} />
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                     <a 
-                      href={`${UPLOADS_URL}/${app.resumePath}`} 
+                      href={getResumeUrl(app.resumePath)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="btn btn-secondary"

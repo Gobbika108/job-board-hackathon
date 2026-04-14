@@ -58,6 +58,7 @@ const MyApplications = () => {
               <th>Company</th>
               <th>Date Applied</th>
               <th>Status</th>
+              <th>Resume</th>
             </tr>
           </thead>
           <tbody>

@@ -3,8 +3,26 @@ const Application = require('../models/Application');
 const Job = require('../models/Job');
 const { authMiddleware } = require('../middleware/authMiddleware');
 const upload = require('../middleware/uploadMiddleware');
+const https = require('https');
 
 const router = express.Router();
+
+// Helper endpoint to serve PDFs inline instead of downloading
+router.get('/resume/:fileId', (req, res) => {
+  try {
+    const cloudinaryUrl = Buffer.from(req.params.fileId, 'base64url').toString('utf-8');
+    
+    https.get(cloudinaryUrl, (pdfRes) => {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline; filename="resume.pdf"');
+      pdfRes.pipe(res);
+    }).on('error', (err) => {
+      res.status(500).json({ message: 'Error fetching resume' });
+    });
+  } catch (err) {
+    res.status(400).json({ message: 'Invalid resume link' });
+  }
+});
 
 // POST /api/applications - apply to job (student only)
 router.post('/', authMiddleware, upload.single('resume'), async (req, res) => {
@@ -17,6 +35,9 @@ router.post('/', authMiddleware, upload.single('resume'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: 'Please upload a PDF resume' });
     }
+
+    console.log('Cloudinary URL:', req.file.path);
+    console.log('Full file object:', JSON.stringify(req.file, null, 2));
 
     const { jobId, coverNote } = req.body;
 
@@ -41,13 +62,15 @@ router.post('/', authMiddleware, upload.single('resume'), async (req, res) => {
     const application = new Application({
       studentId: req.user.userId,
       jobId,
-      resumePath: req.file.filename,
+      resumePath: req.file.path,
       coverNote
     });
 
     await application.save();
+    console.log('Application saved successfully with resume URL:', application.resumePath);
     res.status(201).json(application);
   } catch (err) {
+    console.error('Application error:', err);
     res.status(500).json({ message: err.message || 'Server error' });
   }
 });
@@ -66,7 +89,12 @@ router.get('/mine', authMiddleware, async (req, res) => {
       })
       .sort({ appliedAt: -1 });
 
-    res.json(applications);
+    const applicationsWithProxyUrl = applications.map(app => ({
+      ...app.toObject(),
+      resumePath: `/api/applications/resume/${Buffer.from(app.resumePath).toString('base64url')}`
+    }));
+
+    res.json(applicationsWithProxyUrl);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -92,7 +120,13 @@ router.get('/job/:jobId', authMiddleware, async (req, res) => {
       .populate('studentId', 'name email')
       .sort({ appliedAt: -1 });
 
-    res.json(applications);
+    const applicationsWithResumeLink = applications.map(app => ({
+      ...app.toObject(),
+      resumePath: `/api/applications/resume/${Buffer.from(app.resumePath).toString('base64url')}`,
+      resumeUrl: `/api/applications/resume/${Buffer.from(app.resumePath).toString('base64url')}`
+    }));
+
+    res.json(applicationsWithResumeLink);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
