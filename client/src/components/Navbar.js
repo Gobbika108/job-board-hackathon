@@ -26,7 +26,9 @@ const Navbar = () => {
         <div className="navbar-links">
           {user ? (
             <>
-              <Link to="/" className="navbar-link">Jobs</Link>
+              <Link to={user.role === 'company' ? '/dashboard' : '/'} className="navbar-link">
+                {user.role === 'company' ? 'My Jobs' : 'Jobs'}
+              </Link>
               
               <div className="navbar-user">
                 <div className="user-avatar">{getInitials(user.name)}</div>

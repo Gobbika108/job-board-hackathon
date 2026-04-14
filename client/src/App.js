@@ -47,19 +47,39 @@ const PublicRoute = () => {
   return <Outlet />;
 };
 
+const HomeRoute = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className="container" style={{ padding: '2rem' }}>Loading...</div>;
+  }
+
+  if (user?.role === 'company') {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <JobList />;
+};
+
 const AppContent = () => {
   return (
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<JobList />} />
-        <Route path="/login" element={<><PublicRoute /><Login /></>} />
-        <Route path="/signup" element={<><PublicRoute /><Signup /></>} />
+        <Route path="/" element={<HomeRoute />} />
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Route>
         <Route path="/jobs/:id" element={<JobDetail />} />
-        <Route path="/jobs/:id/apply" element={<><ProtectedRoute allowedRole="student" /><Apply /></>} />
-        <Route path="/my-applications" element={<><ProtectedRoute allowedRole="student" /><MyApplications /></>} />
-        <Route path="/dashboard" element={<><ProtectedRoute allowedRole="company" /><CompanyDashboard /></>} />
-        <Route path="/post-job" element={<><ProtectedRoute allowedRole="company" /><PostJob /></>} />
+        <Route element={<ProtectedRoute allowedRole="student" />}>
+          <Route path="/jobs/:id/apply" element={<Apply />} />
+          <Route path="/my-applications" element={<MyApplications />} />
+        </Route>
+        <Route element={<ProtectedRoute allowedRole="company" />}>
+          <Route path="/dashboard" element={<CompanyDashboard />} />
+          <Route path="/post-job" element={<PostJob />} />
+        </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
