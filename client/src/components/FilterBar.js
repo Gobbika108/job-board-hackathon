@@ -7,7 +7,7 @@ const FilterBar = ({ filters, onChange }) => {
       <input
         type="text"
         className="form-input"
-        placeholder="Search jobs or companies..."
+        placeholder="Search by title or company..."
         value={filters.search || ''}
         onChange={(e) => onChange({ ...filters, search: e.target.value })}
       />
@@ -17,7 +17,7 @@ const FilterBar = ({ filters, onChange }) => {
         value={filters.category || ''}
         onChange={(e) => onChange({ ...filters, category: e.target.value })}
       >
-        <option value="">All Categories</option>
+        <option value="">Category</option>
         <option value="tech">Tech</option>
         <option value="marketing">Marketing</option>
         <option value="design">Design</option>
@@ -29,7 +29,7 @@ const FilterBar = ({ filters, onChange }) => {
         value={filters.location || ''}
         onChange={(e) => onChange({ ...filters, location: e.target.value })}
       >
-        <option value="">All Locations</option>
+        <option value="">Location</option>
         <option value="remote">Remote</option>
         <option value="onsite">Onsite</option>
       </select>
@@ -39,7 +39,7 @@ const FilterBar = ({ filters, onChange }) => {
         value={filters.type || ''}
         onChange={(e) => onChange({ ...filters, type: e.target.value })}
       >
-        <option value="">All Types</option>
+        <option value="">Type</option>
         <option value="internship">Internship</option>
         <option value="part-time">Part-time</option>
         <option value="full-time">Full-time</option>

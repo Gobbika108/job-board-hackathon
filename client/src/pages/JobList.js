@@ -10,7 +10,7 @@ const JobList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const jobsPerPage = 6;
+  const jobsPerPage = 9;
 
   useEffect(() => {
     loadJobs();
@@ -53,27 +53,21 @@ const JobList = () => {
     page * jobsPerPage
   );
 
-  // Stats
-  const totalJobs = filteredJobs.length;
   const remoteJobs = filteredJobs.filter(j => j.location === 'remote').length;
   const internshipJobs = filteredJobs.filter(j => j.type === 'internship').length;
-  const closingSoon = filteredJobs.filter(j => {
-    const daysLeft = Math.ceil((new Date(j.deadline) - new Date()) / (1000 * 60 * 60 * 24));
-    return daysLeft > 0 && daysLeft <= 7;
-  }).length;
 
   return (
     <div>
       <div className="hero">
         <div className="container">
-          <h1 className="hero-title">Find Your Dream Opportunity</h1>
+          <h1 className="hero-title">Open Positions</h1>
           <p className="hero-subtitle">
-            Browse part-time, internship, and full-time roles from top companies.
+            {filteredJobs.length} jobs available
           </p>
         </div>
       </div>
 
-      <div className="container" style={{ padding: '2rem 20px' }}>
+      <div className="container" style={{ padding: '0 20px 3rem' }}>
         <FilterBar filters={filters} onChange={setFilters} />
 
         {error && <div className="alert alert-error">{error}</div>}
@@ -89,30 +83,21 @@ const JobList = () => {
           <>
             <div className="stats-row">
               <div className="stat-badge">
-                <span className="stat-dot" style={{ background: 'var(--primary)' }}></span>
-                <span className="stat-value">{totalJobs}</span>
-                <span className="stat-label">Total</span>
+                <span className="stat-dot" style={{ background: '#64748b' }}></span>
+                <span className="stat-value">{filteredJobs.length}</span>
+                <span className="stat-label">positions</span>
               </div>
               <div className="stat-badge">
                 <span className="stat-dot" style={{ background: '#22c55e' }}></span>
                 <span className="stat-value">{remoteJobs}</span>
-                <span className="stat-label">Remote</span>
-              </div>
-              <div className="stat-badge">
-                <span className="stat-dot" style={{ background: '#a855f7' }}></span>
-                <span className="stat-value">{internshipJobs}</span>
-                <span className="stat-label">Internships</span>
+                <span className="stat-label">remote</span>
               </div>
               <div className="stat-badge">
                 <span className="stat-dot" style={{ background: '#f59e0b' }}></span>
-                <span className="stat-value">{closingSoon}</span>
-                <span className="stat-label">Closing Soon</span>
+                <span className="stat-value">{internshipJobs}</span>
+                <span className="stat-label">internships</span>
               </div>
             </div>
-
-            <p style={{ color: 'var(--muted)', marginBottom: '1rem' }}>
-              Showing {paginatedJobs.length} of {filteredJobs.length} opportunities
-            </p>
 
             <div className="job-grid">
               {paginatedJobs.map(job => (
@@ -122,6 +107,7 @@ const JobList = () => {
 
             {totalPages > 1 && (
               <div className="pagination">
+                <button onClick={() => setPage(Math.max(1, page - 1))} disabled={page === 1}>Prev</button>
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNum => (
                   <button
                     key={pageNum}
@@ -131,6 +117,7 @@ const JobList = () => {
                     {pageNum}
                   </button>
                 ))}
+                <button onClick={() => setPage(Math.min(totalPages, page + 1))} disabled={page === totalPages}>Next</button>
               </div>
             )}
           </>
